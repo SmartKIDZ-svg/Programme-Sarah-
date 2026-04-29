@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Programme Sarah</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --dark:#0f0f0f; --card:#181818; --border:#252525; --text:#e8e8e8; --muted:#777;
+    --gold:#F5A623; --red:#E8272A; --blue:#2A6DE8; --green:#27AE60; --purple:#8E44AD;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--dark);color:var(--text);font-family:'DM Sans',sans-serif;-webkit-font-smoothing:antialiased;}
+
+  /* ─── SCREENS ─── */
+  .screen{display:none;min-height:100vh;}
+  .screen.active{display:block;}
+
+  /* ─── HOME ─── */
+  .home-hero{
+    position:relative;
+    background:linear-gradient(160deg,#1a0010 0%,#0f0f0f 40%,#001020 100%);
+    padding:70px 24px 56px;text-align:center;overflow:hidden;
+  }
+  .home-hero::after{
+    content:'';position:absolute;inset:0;
+    background:radial-gradient(ellipse 70% 60% at 30% 40%,rgba(232,39,42,.15),transparent),
+               radial-gradient(ellipse 70% 60% at 70% 60%,rgba(39,174,96,.15),transparent);
+    pointer-events:none;
+  }
+  .home-hero>*{position:relative;z-index:1;}
+  .home-name{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(72px,18vw,130px);
+    letter-spacing:4px;line-height:.88;color:#fff;margin-bottom:8px;
+  }
+  .home-name em{
+    display:block;
+    background:linear-gradient(90deg,#E8272A,#F5A623);
+    -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+    font-style:normal;
+  }
+  .home-subtitle{color:var(--muted);font-size:12px;letter-spacing:4px;text-transform:uppercase;margin-bottom:48px;}
+
+  .planning{
+    background:rgba(255,255,255,.04);border:1px solid var(--border);
+    border-radius:14px;padding:24px;margin:0 auto 40px;max-width:480px;text-align:left;
+  }
+  .planning-title{
+    font-family:'Bebas Neue',sans-serif;font-size:18px;letter-spacing:2px;
+    color:#fff;margin-bottom:16px;text-align:center;
+  }
+  .plan-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);}
+  .plan-row:last-child{border-bottom:none;}
+  .plan-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+  .plan-row-text{font-size:13px;color:var(--text);line-height:1.5;}
+  .plan-row-text strong{color:#fff;display:block;}
+  .cardio-warning{
+    margin-top:16px;background:rgba(245,166,35,.1);border:1px solid rgba(245,166,35,.3);
+    border-radius:8px;padding:12px 14px;font-size:12px;color:var(--gold);line-height:1.6;text-align:center;
+  }
+
+  .home-btns{display:flex;flex-direction:column;gap:14px;max-width:400px;margin:0 auto;padding:0 16px;}
+  .btn-program{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:20px 24px;border-radius:14px;border:none;cursor:pointer;
+    font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:#fff;
+    transition:transform .15s,box-shadow .15s;
+  }
+  .btn-program:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.4);}
+  .btn-haut{background:linear-gradient(135deg,#c0392b,#E8272A);}
+  .btn-bas{background:linear-gradient(135deg,#1e8449,#27AE60);}
+  .btn-arrow{font-size:20px;}
+  .btn-sub{font-size:11px;letter-spacing:1px;opacity:.8;font-family:'DM Sans',sans-serif;font-weight:400;display:block;margin-top:2px;}
+
+  /* ─── INNER PAGES ─── */
+  .page{max-width:700px;margin:0 auto;padding:0 14px 80px;}
+
+  .back-bar{
+    position:sticky;top:0;z-index:100;
+    background:rgba(15,15,15,.95);backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--border);padding:12px 16px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .back-btn{
+    background:rgba(255,255,255,.08);border:1px solid var(--border);
+    color:var(--text);font-size:13px;padding:6px 14px;border-radius:6px;
+    cursor:pointer;font-family:'DM Sans',sans-serif;
+  }
+  .back-btn:hover{background:rgba(255,255,255,.14);}
+  .back-title{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;}
+
+  .page-hero{padding:48px 20px 40px;text-align:center;position:relative;overflow:hidden;}
+  .page-hero h1{
+    font-family:'Bebas Neue',sans-serif;
+    font-size:clamp(52px,12vw,90px);letter-spacing:3px;line-height:.88;
+    color:#fff;margin-bottom:12px;
+  }
+  .page-hero h1 em{font-style:normal;}
+  .page-hero .sub{color:var(--muted);font-size:12px;letter-spacing:3px;text-transform:uppercase;margin-bottom:36px;}
+  .stats{display:flex;justify-content:center;gap:40px;flex-wrap:wrap;}
+  .sn{font-family:'Bebas Neue',sans-serif;font-size:40px;color:#fff;line-height:1;}
+  .sl{font-size:10px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;}
+
+  .sec{display:flex;align-items:center;gap:14px;margin:44px 0 16px;}
+  .sec-n{font-family:'Bebas Neue',sans-serif;font-size:50px;line-height:1;min-width:44px;}
+  .sec-h{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:2px;color:#fff;}
+  .sec-p{font-size:11px;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-top:1px;}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:14px;}
+  .cap{padding:7px 16px;font-size:11px;color:var(--muted);background:#111;border-bottom:1px solid var(--border);}
+  .cb{padding:20px;}
+  .cd{font-size:13px;color:var(--muted);line-height:1.65;margin-bottom:16px;}
+
+  /* VIDEO EMBED — vertical watch format */
+  .vid-wrap{
+    position:relative;width:100%;
+    padding-top:56.25%; /* 16:9 fallback */
+    background:#000;overflow:hidden;
+  }
+  .vid-wrap.watch{
+    padding-top:0;
+    height:420px; /* fixed height for vertical watch */
+  }
+  .vid-wrap iframe{
+    position:absolute;top:0;left:0;
+    width:100%;height:100%;border:none;
+  }
+
+  .phases{display:flex;flex-direction:column;gap:8px;}
+  .ph{display:flex;align-items:center;gap:14px;background:rgba(255,255,255,.04);border-radius:8px;padding:12px 16px;}
+  .pt{font-family:'Bebas Neue',sans-serif;font-size:19px;color:var(--gold);min-width:72px;}
+  .pd strong{font-size:13px;color:#fff;display:block;margin-bottom:2px;}
+  .pd span{font-size:12px;color:var(--muted);}
+  .pb{height:4px;border-radius:2px;background:var(--gold);margin-top:8px;}
+
+  .wl{list-style:none;}
+  .wl li{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:14px;color:var(--text);}
+  .wl li:last-child{border-bottom:none;}
+  .wl li::before{content:'→';color:var(--gold);font-weight:700;flex-shrink:0;}
+
+  .bh{padding:16px 20px;display:flex;align-items:center;justify-content:space-between;}
+  .bh-push{background:linear-gradient(90deg,rgba(232,39,42,.2),transparent);border-left:4px solid var(--red);}
+  .bh-pull{background:linear-gradient(90deg,rgba(42,109,232,.2),transparent);border-left:4px solid var(--blue);}
+  .bh-c1{background:linear-gradient(90deg,rgba(39,174,96,.2),transparent);border-left:4px solid var(--green);}
+  .bh-c2{background:linear-gradient(90deg,rgba(142,68,173,.2),transparent);border-left:4px solid var(--purple);}
+  .bl2{font-family:'Bebas Neue',sans-serif;font-size:27px;letter-spacing:2px;}
+  .bm{font-size:12px;color:var(--muted);text-align:right;line-height:1.7;}
+
+  .ex-block{background:rgba(255,255,255,.03);border-radius:10px;margin-bottom:12px;overflow:hidden;border-left:3px solid transparent;}
+  .ex-block.rp{border-left-color:var(--red);}
+  .ex-block.rl{border-left-color:var(--blue);}
+  .ex-block.c1{border-left-color:var(--green);}
+  .ex-block.c2{border-left-color:var(--purple);}
+  .ex-block.gold{border-left-color:var(--gold);}
+  .ex-info{padding:12px 14px;}
+  .en{font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;}
+  .ename{font-family:'Bebas Neue',sans-serif;font-size:20px;color:#fff;letter-spacing:1px;}
+  .esub{font-size:12px;color:var(--muted);margin:3px 0 7px;line-height:1.5;}
+  .bdg{display:inline-block;font-size:11px;font-weight:600;padding:3px 10px;border-radius:4px;letter-spacing:1px;}
+  .bp{background:rgba(232,39,42,.2);color:var(--red);}
+  .bl{background:rgba(42,109,232,.2);color:#7aaff8;}
+  .bc1{background:rgba(39,174,96,.2);color:#2ecc71;}
+  .bc2{background:rgba(142,68,173,.2);color:#bb8fce;}
+  .bg{background:rgba(245,166,35,.2);color:var(--gold);}
+
+  .circ{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--muted);padding:10px 20px;border-top:1px solid var(--border);}
+  .cdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .cdp{background:var(--red);box-shadow:0 0 6px var(--red);}
+  .cdl{background:var(--blue);box-shadow:0 0 6px var(--blue);}
+  .cd1{background:var(--green);box-shadow:0 0 6px var(--green);}
+  .cd2{background:var(--purple);box-shadow:0 0 6px var(--purple);}
+
+  .tgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+  .ti{background:rgba(255,255,255,.04);border-radius:8px;padding:14px;display:flex;justify-content:space-between;align-items:center;}
+  .tl{font-size:13px;color:var(--muted);}
+  .tv{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--gold);}
+  .ttot{grid-column:1/-1;background:linear-gradient(90deg,rgba(245,166,35,.13),rgba(245,166,35,.04));border:1px solid rgba(245,166,35,.3);}
+
+  .tbar-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;margin-bottom:14px;}
+  .tbar{display:flex;height:30px;border-radius:6px;overflow:hidden;margin-bottom:12px;}
+  .tbar div{display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;}
+  .tlegend{display:flex;gap:16px;flex-wrap:wrap;}
+
+  .alert-box{background:rgba(142,68,173,.1);border:1px solid rgba(142,68,173,.4);border-radius:10px;padding:14px 16px;margin-top:10px;font-size:13px;color:#bb8fce;line-height:1.6;}
+  .alert-box strong{color:#d7bde2;display:block;margin-bottom:4px;}
+  .alert-green{background:rgba(39,174,96,.08);border-color:rgba(39,174,96,.3);color:#a9dfbf;}
+  .alert-green strong{color:#82e0aa;}
+
+  .tips{display:flex;flex-direction:column;gap:10px;}
+  .tip{display:flex;gap:14px;align-items:flex-start;background:rgba(255,255,255,.03);border-radius:8px;padding:14px;}
+  .tip-i{font-size:22px;flex-shrink:0;}
+  .tip-t{font-size:13px;color:var(--text);line-height:1.6;}
+  .tip-t strong{color:#fff;display:block;margin-bottom:2px;}
+
+  .divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:32px 0;}
+  .footer{text-align:center;padding:28px;font-size:11px;color:var(--muted);letter-spacing:2px;text-transform:uppercase;border-top:1px solid var(--border);}
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════
+     HOME
+══════════════════════════════════════ -->
+<div id="home" class="screen active">
+  <div class="home-hero">
+    <div style="margin-bottom:20px;">
+      <img src="data:image/jpeg;base64,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" alt="Sarah" style="width:90px;height:90px;border-radius:50%;object-fit:cover;">
+    </div>
+    <div class="home-name">SARAH<em>FIT</em></div>
+    <p class="home-subtitle">Programme de musculation personnalisé</p>
+
+    <div class="planning">
+      <div class="planning-title">📅 TON PLANNING SEMAINE</div>
+      <div class="plan-row" style="justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="plan-dot" style="background:var(--red);box-shadow:0 0 6px var(--red);"></div>
+          <div class="plan-row-text"><strong>Jour 1 — Haut du corps</strong>Pectoraux · Dos · Triceps · Biceps</div>
+        </div>
+        <button onclick="showScreen('haut')" style="background:var(--red);border:none;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;padding:8px 14px;border-radius:8px;cursor:pointer;flex-shrink:0;">VOIR →</button>
+      </div>
+      <div class="plan-row">
+        <div class="plan-dot" style="background:#444;"></div>
+        <div class="plan-row-text"><strong>Jour 2 — Repos</strong>Récupération active ou repos complet</div>
+      </div>
+      <div class="plan-row" style="justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="plan-dot" style="background:var(--green);box-shadow:0 0 6px var(--green);"></div>
+          <div class="plan-row-text"><strong>Jour 3 — Bas du corps</strong>Quadriceps · Ischio-jambiers · Fessiers · Mollets</div>
+        </div>
+        <button onclick="showScreen('bas')" style="background:var(--green);border:none;color:#fff;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:1px;padding:8px 14px;border-radius:8px;cursor:pointer;flex-shrink:0;">VOIR →</button>
+      </div>
+      <div class="plan-row">
+        <div class="plan-dot" style="background:#444;"></div>
+        <div class="plan-row-text"><strong>Jour 4 — Repos</strong>Récupération active ou repos complet</div>
+      </div>
+      <div class="plan-row">
+        <div class="plan-dot" style="background:var(--gold);box-shadow:0 0 6px var(--gold);"></div>
+        <div class="plan-row-text"><strong>Jour 5 — Cardio</strong>Marche, vélo, natation ou cardio libre</div>
+      </div>
+      <div class="plan-row">
+        <div class="plan-dot" style="background:#444;"></div>
+        <div class="plan-row-text"><strong>Jour 6 & 7 — Repos</strong>Récupération complète avant de recommencer</div>
+      </div>
+      <div class="cardio-warning">
+        ⚠️ <strong>Le jour cardio</strong>, aucun exercice de musculation.<br>
+        Le cardio seul suffit — ton corps a besoin de récupérer.
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+<!-- ══════════════════════════════════════
+     HAUT DU CORPS
+══════════════════════════════════════ -->
+<div id="haut" class="screen">
+  <div class="back-bar">
+    <button class="back-btn" onclick="showScreen('home')">← Accueil</button>
+    <span class="back-title" style="color:var(--red);">HAUT DU CORPS</span>
+  </div>
+
+  <div class="page-hero" style="background:linear-gradient(160deg,#200000 0%,#0f0f0f 50%,#001428 100%);">
+    <h1>HAUT DU<br><em style="color:var(--red);">CORPS</em></h1>
+    <p class="sub">Push · Pull · Cardio · Lombaires</p>
+    <div class="stats">
+      <div><div class="sn">1h05</div><div class="sl">Durée</div></div>
+      <div><div class="sn">6</div><div class="sl">Exercices</div></div>
+      <div><div class="sn">3</div><div class="sl">Tours/bloc</div></div>
+      <div><div class="sn">2 min</div><div class="sl">Repos</div></div>
+    </div>
+  </div>
+
+  <div class="page">
+
+    <!-- 01 CARDIO -->
+    <div class="sec"><div class="sec-n" style="color:var(--red);">01</div><div><div class="sec-h">CARDIO TAPIS</div><div class="sec-p">20 minutes · Obligatoire · Début de séance</div></div></div>
+    <div class="card">
+      <div style="background:linear-gradient(135deg,#1a0a0a,#1a1a2e);padding:32px 24px;display:flex;align-items:center;gap:20px;">
+        <div style="font-size:60px;line-height:1;">🏃</div>
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#fff;letter-spacing:2px;">MARCHE INCLINÉE PROGRESSIVE</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:4px;">Tapis de marche · 20 minutes</div>
+        </div>
+      </div>
+      <div class="cb">
+        <div class="phases">
+          <div class="ph"><div class="pt">0–5 min</div><div class="pd"><strong>Mise en route</strong><span>5 km/h · Inclinaison 0–2%</span><div class="pb" style="width:28%;opacity:.5;"></div></div></div>
+          <div class="ph"><div class="pt">5–15 min</div><div class="pd"><strong>Phase active</strong><span>5–5,5 km/h · Inclinaison 5–7%</span><div class="pb" style="width:62%;"></div></div></div>
+          <div class="ph"><div class="pt">15–20 min</div><div class="pd"><strong>Pic d'effort</strong><span>5,5 km/h · Inclinaison 7–10%</span><div class="pb" style="width:100%;"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 02 ÉCHAUFFEMENT -->
+    <div class="sec"><div class="sec-n" style="color:var(--red);">02</div><div><div class="sec-h">ÉCHAUFFEMENT</div><div class="sec-p">5–10 minutes · Activer sans fatiguer</div></div></div>
+    <div class="card">
+      <div style="background:linear-gradient(135deg,#0d1a0d,#1a1a0a);padding:32px 24px;display:flex;align-items:center;gap:20px;">
+        <div style="font-size:60px;line-height:1;">🔥</div>
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#fff;letter-spacing:2px;">MOBILISATION ARTICULAIRE</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:4px;">Épaules · Pectoraux · Dos</div>
+        </div>
+      </div>
+      <div class="cb">
+        <ul class="wl">
+          <li>Rotations d'épaules — avant/arrière, 30 sec chaque sens</li>
+          <li>Tirage élastique léger — 15 reps, amplitude complète</li>
+          <li>2 × 10 reps Chest Press léger (30–40% de ta charge)</li>
+          <li>2 × 10 reps Tirage léger (même principe)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 03 LOMBAIRES -->
+    <div class="sec"><div class="sec-n" style="color:var(--red);">03</div><div><div class="sec-h">LOMBAIRES</div><div class="sec-p">Obligatoire · Protection du rachis</div></div></div>
+    <div class="card">
+      <div class="vid-wrap watch">
+        <iframe src="https://www.youtube.com/embed/Oqiy9nTE2v0?rel=0&modestbranding=1" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+      </div>
+      <div class="cap">📍 Extension lombaire — banc romain</div>
+      <div class="ex-info">
+        <div class="en">Exercice · Lombaires</div>
+        <div class="ename">EXTENSION LOMBAIRE</div>
+        <div class="esub">Banc romain · Mouvement contrôlé</div>
+        <span class="bdg bg">3 séries × 12–15 reps</span>
+      </div>
+    </div>
+
+    <!-- 04 PUSH -->
+    <div class="sec"><div class="sec-n" style="color:var(--red);">04</div><div><div class="sec-h">BLOC PUSH</div><div class="sec-p">Pectoraux + Triceps · Circuit 3 tours</div></div></div>
+    <div class="card">
+      <div class="bh bh-push">
+        <div><div class="bl2" style="color:var(--red);">🔴 PUSH</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">3 ateliers enchaînés · Sans repos entre ateliers</div></div>
+        <div class="bm">3 tours<br>Repos 2 min</div>
+      </div>
+      <div style="padding:16px 20px;">
+
+        <div class="ex-block rp">
+          <div class="vid-wrap watch">
+            <iframe src="https://www.youtube.com/embed/YXjhMV7uz4c?rel=0&modestbranding=1" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+          </div>
+          <div class="ex-info">
+            <div class="en">Atelier 1 · Pectoraux</div>
+            <div class="ename">DÉVELOPPÉ COUCHÉ — CHEST PRESS</div>
+            <div class="esub">Machine chest press</div>
+            <span class="bdg bp">10–12 reps</span>
+          </div>
+        </div>
+
+        <div class="ex-block rp">
+          <div class="vid-wrap watch">
+            <iframe src="https://www.youtube.com/embed/fgXSA2-o0NM?rel=0&modestbranding=1" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+          </div>
+          <div class="ex-info">
+            <div class="en">Atelier 2 · Pectoraux</div>
+            <div class="ename">ÉCARTÉ POITRINE — PEC FLY</div>
+            <div class="esub">Machine pec fly</div>
+            <span class="bdg bp">12–15 reps</span>
+          </div>
+        </div>
+
+        <div class="ex-block rp">
+          <div class="vid-wrap watch">
+            <iframe src="https://www.youtube.com/embed/LXkCrxn3caQ?rel=0&modestbranding=1" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+          </div>
+          <div class="ex-info">
+            <div class="en">Atelier 3 · Triceps</div>
+            <div class="ename">EXTENSION TRICEPS — POULIE</div>
+            <div class="esub">Poulie haute · Corde ou barre</div>
+            <span class="bdg bp">10–12 reps</span>
+          </div>
+        </div>
+
+      </div>
+      <div class="circ"><div class="cdot cdp"></div>Enchaîner les 3 ateliers sans pause · Récupérer 2 min puis recommencer</div>
+    </div>
+
+    <!-- 05 PULL -->
+    <div class="sec"><div class="sec-n" style="color:var(--blue);">05</div><div><div class="sec-h">BLOC PULL</div><div class="sec-p">Dos + Biceps · Circuit 3 tours</div></div></div>
+    <div class="card">
+      <div class="bh bh-pull">
+        <div><div class="bl2" style="color:var(--blue);">🔵 PULL</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">3 ateliers enchaînés · Sans repos entre ateliers</div></div>
+        <div class="bm">3 tours<br>Repos 2 min</div>
+      </div>
+      <div style="padding:16px 20px;">
+
+        <div class="ex-block rl">
+          <div class="vid-wrap watch">
+            <iframe src="https://www.youtube.com/embed/CAwf7n6Luuc?rel=0&modestbranding=1" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+          </div>
+          <div class="ex-info">
+            <div class="en">Atelier 1 · Dos</div>
+            <div class="ename">TIRAGE VERTICAL — LAT PULLDOWN</div>
+            <div class="esub">Prise large · Tirage devant</div>
+            <span class="bdg bl">10–12 reps</span>
+          </div>
+        </div>
+
+        <div class="ex-block rl">
+          <div class="vid-wrap watch">
+            <iframe src="https://www.youtube.com/embed/vwHG9Jfu4sw?rel=0&modestbranding=1" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+          </div>
+          <div class="ex-info">
+            <div class="en">Atelier 2 · Dos</div>
+            <div class="ename">TIRAGE HORIZONTAL — ROWING</div>
+            <div class="esub">Câble assis · Poignée neutre</div>
+            <span class="bdg bl">10–12 reps</span>
+          </div>
+        </div>
+
+        <div class="ex-block rl">
+          <div class="vid-wrap watch">
+            <iframe src="https://www.youtube.com/embed/XE_pHwbst04?rel=0&modestbranding=1" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+          </div>
+          <div class="ex-info">
+            <div class="en">Atelier 3 · Biceps</div>
+            <div class="ename">CURL BICEPS — HALTÈRES</div>
+            <div class="esub">Assis · Supination complète</div>
+            <span class="bdg bl">10–12 reps</span>
+          </div>
+        </div>
+
+      </div>
+      <div class="circ"><div class="cdot cdl"></div>Enchaîner les 3 ateliers sans pause · Récupérer 2 min puis recommencer</div>
+    </div>
+
+    <!-- TIMING HAUT -->
+    <div class="tbar-wrap">
+      <div class="tbar">
+        <div style="width:29%;background:var(--red);color:#fff;">20 min</div>
+        <div style="width:14%;background:var(--gold);color:#000;">10</div>
+        <div style="width:7%;background:#9a7a20;color:#fff;font-size:9px;">5</div>
+        <div style="width:22%;background:#c0392b;color:#fff;">PUSH</div>
+        <div style="width:22%;background:var(--blue);color:#fff;">PULL</div>
+        <div style="flex:1;background:#222;"></div>
+      </div>
+      <div class="tlegend">
+        <span style="font-size:11px;color:var(--red);">■ Cardio</span>
+        <span style="font-size:11px;color:var(--gold);">■ Échauff.</span>
+        <span style="font-size:11px;color:#9a7a20;">■ Lombaires</span>
+        <span style="font-size:11px;color:#c0392b;">■ Push</span>
+        <span style="font-size:11px;color:var(--blue);">■ Pull</span>
+      </div>
+    </div>
+    <div class="tgrid">
+      <div class="ti"><span class="tl">Cardio</span><span class="tv">20 min</span></div>
+      <div class="ti"><span class="tl">Échauffement</span><span class="tv">10 min</span></div>
+      <div class="ti"><span class="tl">Lombaires</span><span class="tv">5 min</span></div>
+      <div class="ti"><span class="tl">Push + Pull</span><span class="tv">30 min</span></div>
+      <div class="ti ttot"><span class="tl" style="font-weight:600;color:var(--text);">TOTAL</span><span class="tv" style="font-size:28px;">≈ 1h05</span></div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="tips">
+      <div class="tip"><div class="tip-i">⏸️</div><div class="tip-t"><strong>Repos = 2 min entre chaque tour</strong>Respecte ce temps pour une récupération optimale.</div></div>
+      <div class="tip"><div class="tip-i">🐢</div><div class="tip-t"><strong>Mouvement lent et contrôlé</strong>2 sec descente · 1 sec contraction · 1 sec montée.</div></div>
+      <div class="tip"><div class="tip-i">💨</div><div class="tip-t"><strong>Respiration : souffler en poussant</strong>Expire à l'effort, inspire au retour.</div></div>
+    </div>
+
+  </div>
+  <div class="footer">Programme Sarah · Haut du Corps</div>
+</div>
+
+<!-- ══════════════════════════════════════
+     BAS DU CORPS
+══════════════════════════════════════ -->
+<div id="bas" class="screen">
+  <div class="back-bar">
+    <button class="back-btn" onclick="showScreen('home')">← Accueil</button>
+    <span class="back-title" style="color:var(--green);">BAS DU CORPS</span>
+  </div>
+
+  <div class="page-hero" style="background:linear-gradient(160deg,#002010 0%,#0f0f0f 50%,#100020 100%);">
+    <h1>BAS DU<br><em style="color:var(--green);">CORPS</em></h1>
+    <p class="sub">Quadriceps · Ischio-jambiers · Fessiers · Mollets</p>
+    <div class="stats">
+      <div><div class="sn">1h15</div><div class="sl">Durée</div></div>
+      <div><div class="sn">6</div><div class="sl">Exercices</div></div>
+      <div><div class="sn">2</div><div class="sl">Circuits</div></div>
+      <div><div class="sn">3 min</div><div class="sl">Repos</div></div>
+    </div>
+  </div>
+
+  <div class="page">
+
+    <!-- 01 CARDIO -->
+    <div class="sec"><div class="sec-n" style="color:var(--green);">01</div><div><div class="sec-h">CARDIO TAPIS</div><div class="sec-p">20 minutes · Obligatoire · Début de séance</div></div></div>
+    <div class="card">
+      <div style="background:linear-gradient(135deg,#001a0a,#0f0f1a);padding:32px 24px;display:flex;align-items:center;gap:20px;">
+        <div style="font-size:60px;line-height:1;">🏃</div>
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#fff;letter-spacing:2px;">MARCHE INCLINÉE PROGRESSIVE</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:4px;">Tapis de marche · 20 minutes</div>
+        </div>
+      </div>
+      <div class="cb">
+        <div class="phases">
+          <div class="ph"><div class="pt">0–5 min</div><div class="pd"><strong>Mise en route</strong><span>5 km/h · Inclinaison 0–2%</span><div class="pb" style="width:28%;opacity:.5;"></div></div></div>
+          <div class="ph"><div class="pt">5–15 min</div><div class="pd"><strong>Phase active</strong><span>5–5,5 km/h · Inclinaison 5–7%</span><div class="pb" style="width:62%;"></div></div></div>
+          <div class="ph"><div class="pt">15–20 min</div><div class="pd"><strong>Pic d'effort</strong><span>5,5 km/h · Inclinaison 7–10%</span><div class="pb" style="width:100%;"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 02 ÉCHAUFFEMENT -->
+    <div class="sec"><div class="sec-n" style="color:var(--green);">02</div><div><div class="sec-h">ÉCHAUFFEMENT</div><div class="sec-p">5–10 minutes · Mobiliser hanches et genoux</div></div></div>
+    <div class="card">
+      <div style="background:linear-gradient(135deg,#001a0a,#0a100a);padding:32px 24px;display:flex;align-items:center;gap:20px;">
+        <div style="font-size:60px;line-height:1;">🔥</div>
+        <div>
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:22px;color:#fff;letter-spacing:2px;">MOBILISATION BAS DU CORPS</div>
+          <div style="font-size:13px;color:var(--muted);margin-top:4px;">Hanches · Genoux · Chevilles</div>
+        </div>
+      </div>
+      <div class="cb">
+        <ul class="wl">
+          <li>Squats à vide — 2 × 15 reps, amplitude complète</li>
+          <li>Fentes sur place — 2 × 10 reps par jambe</li>
+          <li>Mobilité hanches — rotations, cercles, ouvertures latérales</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- 03 LOMBAIRES -->
+    <div class="sec"><div class="sec-n" style="color:var(--green);">03</div><div><div class="sec-h">LOMBAIRES</div><div class="sec-p">Obligatoire · Protection du rachis</div></div></div>
+    <div class="card">
+      <div class="vid-wrap watch">
+        <iframe src="https://www.youtube.com/embed/Oqiy9nTE2v0?rel=0&modestbranding=1" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+      </div>
+      <div class="cap">📍 Extension lombaire — banc romain</div>
+      <div class="ex-info">
+        <div class="en">Exercice · Lombaires</div>
+        <div class="ename">EXTENSION LOMBAIRE</div>
+        <div class="esub">Banc romain · Mouvement contrôlé</div>
+        <span class="bdg bg">3 séries × 12–15 reps</span>
+      </div>
+    </div>
+
+    <!-- 04 CIRCUIT 1 -->
+    <div class="sec"><div class="sec-n" style="color:var(--green);">04</div><div><div class="sec-h">CIRCUIT 1</div><div class="sec-p">Quadriceps · Ischio-jambiers · Mollets</div></div></div>
+    <div class="card">
+      <div class="bh bh-c1">
+        <div><div class="bl2" style="color:var(--green);">🟩 CIRCUIT 1</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">3 ateliers enchaînés · Sans repos entre ateliers</div></div>
+        <div class="bm">3 tours<br>Repos 3 min</div>
+      </div>
+      <div style="padding:16px 20px;">
+
+        <div class="ex-block c1">
+          <div class="vid-wrap watch">
+            <iframe src="https://www.youtube.com/embed/73uIfCey0ww?rel=0&modestbranding=1" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+          </div>
+          <div class="ex-info">
+            <div class="en">Atelier 1 · Quadriceps</div>
+            <div class="ename">HACK SQUAT</div>
+            <div class="esub">Machine · Dos plaqué · Pieds écartés largeur épaules</div>
+            <span class="bdg bc1">12 reps</span>
+          </div>
+        </div>
+
+        <div class="ex-block c1">
+          <div class="vid-wrap watch">
+            <iframe src="https://www.youtube.com/embed/oFxEDkppbSQ?rel=0&modestbranding=1" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+          </div>
+          <div class="ex-info">
+            <div class="en">Atelier 2 · Ischio-jambiers</div>
+            <div class="ename">LEG CURL</div>
+            <div class="esub">Machine · Flexion genou contrôlée · Descente lente</div>
+            <span class="bdg bc1">12 reps</span>
+          </div>
+        </div>
+
+        <div class="ex-block c1">
+          <div class="vid-wrap watch">
+            <iframe src="https://www.youtube.com/embed/yYBAQGtpIyM?rel=0&modestbranding=1" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+          </div>
+          <div class="ex-info">
+            <div class="en">Atelier 3 · Mollets</div>
+            <div class="ename">EXTENSION MOLLETS</div>
+            <div class="esub">Machine · Amplitude complète · Pause en haut</div>
+            <span class="bdg bc1">12 reps</span>
+          </div>
+        </div>
+
+      </div>
+      <div class="circ"><div class="cdot cd1"></div>Enchaîner les 3 ateliers sans pause · Récupérer 3 min puis recommencer</div>
+    </div>
+
+    <!-- 05 CIRCUIT 2 -->
+    <div class="sec"><div class="sec-n" style="color:var(--purple);">05</div><div><div class="sec-h">CIRCUIT 2</div><div class="sec-p">Ischio-jambiers · Fessiers · Fentes</div></div></div>
+    <div class="card">
+      <div class="bh bh-c2">
+        <div><div class="bl2" style="color:var(--purple);">🟣 CIRCUIT 2</div><div style="font-size:12px;color:var(--muted);margin-top:2px;">3 ateliers enchaînés · Sans repos entre ateliers</div></div>
+        <div class="bm">3 tours<br>Repos 3 min</div>
+      </div>
+      <div style="padding:16px 20px;">
+
+        <div class="ex-block c2">
+          <div class="vid-wrap watch">
+            <iframe src="https://www.youtube.com/embed/hQgFixeXdZo?rel=0&modestbranding=1" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+          </div>
+          <div class="ex-info">
+            <div class="en">Atelier 1 · Ischio-jambiers</div>
+            <div class="ename">ROMANIAN DEADLIFT — HALTÈRES</div>
+            <div class="esub">Charge légère · Sentir les ischio-jambiers, pas les fessiers</div>
+            <span class="bdg bc2">12–15 reps</span>
+            <div class="alert-box">
+              <strong>⚠️ Consigne technique</strong>
+              Charge légère — dos droit, hanches vers l'arrière, haltères le long des cuisses. Objectif : sentir la tension dans les ischio-jambiers uniquement.
+            </div>
+          </div>
+        </div>
+
+        <div class="ex-block c2">
+          <div class="vid-wrap watch">
+            <iframe src="https://www.youtube.com/embed/xDmFkJxPzeM?rel=0&modestbranding=1" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+          </div>
+          <div class="ex-info">
+            <div class="en">Atelier 2 · Fessiers</div>
+            <div class="ename">HIP THRUST</div>
+            <div class="esub">Machine ou barre · Contraction fessiers en haut</div>
+            <span class="bdg bc2">12 reps</span>
+          </div>
+        </div>
+
+        <div class="ex-block c2">
+          <div class="vid-wrap watch">
+            <iframe src="https://www.youtube.com/embed/_DLIS8SySzs?rel=0&modestbranding=1" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+          </div>
+          <div class="ex-info">
+            <div class="en">Atelier 3 · Quadriceps + Fessiers</div>
+            <div class="ename">FENTES EN MARCHE</div>
+            <div class="esub">Haltères · Marche vers l'avant · Foulée contrôlée</div>
+            <span class="bdg bc2">20 reps — 10 par jambe</span>
+            <div class="alert-box alert-green">
+              <strong>💡 Technique</strong>
+              Avance en enchaînant les fentes — genou avant aligné sur la cheville, genou arrière proche du sol. 10 reps jambe gauche + 10 reps jambe droite = 1 série.
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="circ"><div class="cdot cd2"></div>Enchaîner les 3 ateliers sans pause · Récupérer 3 min puis recommencer</div>
+    </div>
+
+    <!-- TIMING BAS -->
+    <div class="tbar-wrap">
+      <div class="tbar">
+        <div style="width:25%;background:var(--red);color:#fff;">20 min</div>
+        <div style="width:10%;background:var(--gold);color:#000;">10</div>
+        <div style="width:7%;background:#9a7a20;color:#fff;font-size:9px;">5</div>
+        <div style="width:28%;background:var(--green);color:#fff;">CIRCUIT 1</div>
+        <div style="width:24%;background:var(--purple);color:#fff;">CIRCUIT 2</div>
+        <div style="flex:1;background:#222;"></div>
+      </div>
+      <div class="tlegend">
+        <span style="font-size:11px;color:var(--red);">■ Cardio</span>
+        <span style="font-size:11px;color:var(--gold);">■ Échauff.</span>
+        <span style="font-size:11px;color:#9a7a20;">■ Lombaires</span>
+        <span style="font-size:11px;color:var(--green);">■ Circuit 1</span>
+        <span style="font-size:11px;color:var(--purple);">■ Circuit 2</span>
+      </div>
+    </div>
+    <div class="tgrid">
+      <div class="ti"><span class="tl">Cardio</span><span class="tv">20 min</span></div>
+      <div class="ti"><span class="tl">Échauffement</span><span class="tv">10 min</span></div>
+      <div class="ti"><span class="tl">Lombaires</span><span class="tv">5 min</span></div>
+      <div class="ti"><span class="tl">Circuit 1</span><span class="tv" style="color:var(--green);">20 min</span></div>
+      <div class="ti"><span class="tl">Circuit 2</span><span class="tv" style="color:var(--purple);">20 min</span></div>
+      <div class="ti ttot"><span class="tl" style="font-weight:600;color:var(--text);">TOTAL</span><span class="tv" style="font-size:28px;">≈ 1h15</span></div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="tips">
+      <div class="tip"><div class="tip-i">⏸️</div><div class="tip-t"><strong>Repos = 3 min entre chaque tour</strong>Les jambes sont de gros groupes musculaires — le repos est plus long.</div></div>
+      <div class="tip"><div class="tip-i">🎯</div><div class="tip-t"><strong>Connexion muscle-mouvement</strong>Concentre-toi sur le muscle travaillé. Sentir > soulever lourd.</div></div>
+      <div class="tip"><div class="tip-i">💨</div><div class="tip-t"><strong>Respiration</strong>Expire à l'effort, inspire à la descente.</div></div>
+    </div>
+
+  </div>
+  <div class="footer">Programme Sarah · Bas du Corps</div>
+</div>
+
+<script>
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    window.scrollTo(0, 0);
+  }
+</script>
+
+</body>
+</html>
